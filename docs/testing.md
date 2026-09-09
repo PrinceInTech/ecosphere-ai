@@ -97,8 +97,8 @@ This checklist provides step-by-step verification for every feature. Follow each
 ### Prerequisites
 
 1. Start the backend server: `cd backend && uvicorn app.main:app --reload --port 8000`
-2. Start the frontend server: `cd frontend && npm run dev`
-3. Open `http://localhost:5173` in a browser
+2. Start the frontend server: `cd frontend && npm run dev -- --port 5174 --strictPort`
+3. Open `http://localhost:5174` in a browser
 
 ---
 
@@ -106,7 +106,7 @@ This checklist provides step-by-step verification for every feature. Follow each
 
 | Step | Action | Expected Result |
 |---|---|---|
-| 1.1 | Open `http://localhost:5173` | Landing page loads with "EcoSphere AI" branding |
+| 1.1 | Open `http://localhost:5174` | Landing page loads with "EcoSphere AI" branding |
 | 1.2 | Verify hero section | Shows title "Manage Waste Sustainably" and subtitle about SDG 12 |
 | 1.3 | Check feature cards | 6 feature cards visible: Waste Scanner, AI Assistant, Sustainability Advisor, Analytics, Impact Calculator, Knowledge Base |
 | 1.4 | Click "Start Scanning" | Navigates to `/scanner` |

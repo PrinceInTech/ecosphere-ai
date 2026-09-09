@@ -4,8 +4,8 @@
 
 **Preparation**:
 - Backend running at `http://localhost:8000`
-- Frontend running at `http://localhost:5173`
-- Browser open to `http://localhost:5173`
+- Frontend running at `http://localhost:5174`
+- Browser open to `http://localhost:5174`
 - Have 2-3 sample waste images ready (e.g., plastic bottle.jpg, battery.jpg, apple_core.jpg)
 
 ---
@@ -13,7 +13,7 @@
 ## Step 1: Open Landing Page (30 seconds)
 
 **What to do**:
-1. Navigate to `http://localhost:5173`
+1. Navigate to `http://localhost:5174`
 2. Let the landing page load fully
 
 **What to say**:

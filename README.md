@@ -173,15 +173,15 @@ graph TD
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/PrinceInTech/ecosphere-ai.git
 cd ecosphere-ai/backend
 
 # Create a virtual environment
 python -m venv venv
 
 # Activate the virtual environment
-# Windows:
-venv\Scripts\activate
+# Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
 # macOS/Linux:
 source venv/bin/activate
 
@@ -206,11 +206,11 @@ cd ../frontend
 # Install dependencies
 npm install
 
-# Start the development server
-npm run dev
+# Start the development server on port 5174
+npm run dev -- --port 5174 --strictPort
 ```
 
-The frontend starts at `http://localhost:5173`.
+The frontend starts at `http://localhost:5174`.
 
 ---
 
@@ -244,10 +244,10 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 **Terminal 2 — Frontend:**
 ```bash
 cd frontend
-npm run dev
+npm run dev -- --port 5174 --strictPort
 ```
 
-Open `http://localhost:5173` in your browser.
+Open `http://localhost:5174` in your browser.
 
 ### Docker Compose
 
