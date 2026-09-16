@@ -11,31 +11,88 @@ import type {
   DemoStatus,
 } from "../types";
 
-const DEFAULT_API_BASE = "http://localhost:8000/api";
-const API_BASE =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(
-    /\/+$/,
-    ""
-  ) || DEFAULT_API_BASE;
+const DEV_API_BASE = "http://localhost:8000";
+const PROD_API_BASE = "https://ecosphere-ai-backend.onrender.com";
+
+/**
+ * Resolve the Vite-provided API base to a canonical value that always ends
+ * with the `/api` path prefix used by every backend route.
+ *
+ * - Honors `VITE_API_BASE_URL` when set (with or without a trailing `/api`).
+ * - Falls back to the production backend when built for production so a
+ *   localhost URL can never be baked into the deployed bundle.
+ * - Falls back to the local dev backend when running in development.
+ */
+function normalizeApiBase(raw: string | undefined): string {
+  let base = (raw || "").trim().replace(/\/+$/, "");
+  if (!base) {
+    base = import.meta.env.PROD ? PROD_API_BASE : DEV_API_BASE;
+  }
+  try {
+    const pathname = new URL(base).pathname.replace(/\/+$/, "");
+    if (pathname !== "/api") {
+      base = `${base}/api`;
+    }
+  } catch {
+    if (!base.endsWith("/api")) {
+      base = `${base}/api`;
+    }
+  }
+  return base;
+}
+
+const API_BASE = normalizeApiBase(
+  import.meta.env.VITE_API_BASE_URL as string | undefined
+);
+
+async function extractErrorMessage(
+  res: Response,
+  fallback: string
+): Promise<string> {
+  try {
+    const text = await res.text();
+    const parsed = JSON.parse(text);
+    const detail = parsed.detail ?? parsed.message ?? parsed.error;
+    if (typeof detail === "string" && detail) {
+      return detail;
+    }
+    if (Array.isArray(detail) && detail.length && typeof detail[0]?.msg === "string") {
+      return detail[0].msg;
+    }
+    return text || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function networkErrorMessage(url: string, err: unknown): string {
+  const reason =
+    err instanceof Error && err.message
+      ? ` (${err.message})`
+      : "";
+  return `Network error reaching ${url}${reason}. Check that the API server is online and the request is allowed (CORS).`;
+}
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_BASE}${url}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-  });
+  const isFormData = options.body instanceof FormData;
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${url}`, {
+      ...options,
+      headers: {
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        ...(options.headers || {}),
+      },
+    });
+  } catch (err) {
+    throw new Error(networkErrorMessage(`${API_BASE}${url}`, err));
+  }
 
   if (!res.ok) {
-    let message = `API error: ${res.status}`;
-    try {
-      const text = await res.text();
-      const parsed = JSON.parse(text);
-      message = parsed.detail || parsed.message || message;
-    } catch {
-      // non-json error body
-    }
+    const message = await extractErrorMessage(
+      res,
+      `API error: ${res.status} ${res.statusText}`
+    );
     throw new Error(message);
   }
 
@@ -49,19 +106,21 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
 export async function analyzeImage(file: File): Promise<WasteAnalysisResult> {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch(`${API_BASE}/analyze-image`, {
-    method: "POST",
-    body: form,
-  });
+  const url = `${API_BASE}/analyze-image`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      body: form,
+    });
+  } catch (err) {
+    throw new Error(networkErrorMessage(url, err));
+  }
   if (!res.ok) {
-    const text = await res.text();
-    let message = `Analysis failed: ${res.status}`;
-    try {
-      const parsed = JSON.parse(text);
-      message = parsed.detail || parsed.message || message;
-    } catch {
-      // non-json
-    }
+    const message = await extractErrorMessage(
+      res,
+      `Analysis failed: ${res.status} ${res.statusText}`
+    );
     throw new Error(message);
   }
   const contentType = res.headers.get("content-type") || "";

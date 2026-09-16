@@ -1,6 +1,24 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def _split_origins(value: object) -> list[str]:
+    if isinstance(value, list):
+        return [str(origin).strip() for origin in value if str(origin).strip()]
+    if isinstance(value, str):
+        text = value.strip()
+        if text.startswith("["):
+            import json
+
+            try:
+                parsed = json.loads(text)
+                if isinstance(parsed, list):
+                    return [str(origin).strip() for origin in parsed if str(origin).strip()]
+            except ValueError:
+                pass
+        return [origin.strip() for origin in text.split(",") if origin.strip()]
+    return []
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
@@ -13,14 +31,21 @@ class Settings(BaseSettings):
     ALLOWED_EXTENSIONS: list[str] = ["jpg", "jpeg", "png", "gif", "webp"]
     IBM_GRANITE_API_KEY: str = ""
     IBM_GRANITE_URL: str = ""
-    CORS_ORIGINS: list[str] = [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:3000",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5174",
-        "http://127.0.0.1:3000",
-    ]
+    CORS_ORIGINS: str = ",".join(
+        [
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:3000",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:5174",
+            "http://127.0.0.1:3000",
+            "https://ecosphere-ai-frontend-got0.onrender.com",
+        ]
+    )
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return _split_origins(self.CORS_ORIGINS)
 
 
 settings = Settings()
