@@ -227,7 +227,7 @@ The frontend starts at `http://localhost:5174`.
 | `MAX_UPLOAD_SIZE` | `10485760` (10MB) | Maximum file upload size in bytes |
 | `ALLOWED_EXTENSIONS` | `jpg,jpeg,png,gif,webp` | Allowed image file extensions |
 | `CORS_ORIGINS` | `http://localhost:5173,http://localhost:5174,http://localhost:3000,https://ecosphere-ai-frontend-got0.onrender.com` | Allowed CORS origins |
-| `VITE_API_BASE_URL` | `https://ecosphere-ai-backend.onrender.com/api` | Frontend API base URL (should include the `/api` prefix) |
+| `VITE_API_BASE_URL` | `http://localhost:8000/api` (dev) | Frontend API base URL (should include the `/api` prefix). Dev default points at your local backend; set `https://ecosphere-ai-backend.onrender.com/api` in the Render dashboard only — never bake prod into local dev. |
 
 ---
 
