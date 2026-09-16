@@ -4,6 +4,12 @@
 
 An intelligent web application that helps individuals, households, and communities identify, sort, and manage waste responsibly using artificial intelligence. Built to support **SDG 12 — Responsible Consumption and Production**.
 
+
+## 🚀 Live Demo
+
+- 🌐 Frontend: https://ecosphere-ai-frontend-got0.onrender.com
+- ⚙️ Backend API: https://ecosphere-ai-backend.onrender.com
+
 ---
 
 ## Problem Statement
